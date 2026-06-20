@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vexo · Resources</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Spline+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#f2ece0;
+    --paper-2:#ebe3d3;
+    --panel:#f7f2e9;
+    --ink:#1c1813;
+    --ink-soft:#5d564a;
+    --line:#cdc3ad;
+    --line-strong:#a99f86;
+    --accent:#cf4322;
+    --accent-2:#1f7355;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Spline Sans",system-ui,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(var(--line) 0.5px,transparent 0.5px);
+    background-size:22px 22px;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:72px 24px 96px}
+  header{margin-bottom:48px;border-bottom:1px solid var(--line);padding-bottom:32px}
+  .eyebrow{
+    font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--ink-soft);font-weight:600;margin-bottom:14px;
+  }
+  h1{
+    font-family:"Fraunces",serif;font-weight:500;
+    font-size:clamp(38px,6vw,60px);line-height:1.02;letter-spacing:-.01em;
+  }
+  h1 em{font-style:italic;color:var(--accent)}
+  .lede{margin-top:18px;max-width:54ch;color:var(--ink-soft);font-size:17px}
+  h2{
+    font-family:"Fraunces",serif;font-weight:500;font-size:15px;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:44px 0 18px;
+  }
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+  a.card{
+    display:block;text-decoration:none;color:inherit;
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:22px 22px 20px;position:relative;overflow:hidden;
+    transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+  }
+  a.card:hover{transform:translateY(-3px);border-color:var(--line-strong);box-shadow:0 14px 30px -18px rgba(28,24,19,.45)}
+  a.card::after{
+    content:"→";position:absolute;top:20px;right:20px;
+    font-size:18px;color:var(--accent);opacity:0;transform:translateX(-4px);
+    transition:opacity .18s ease,transform .18s ease;
+  }
+  a.card:hover::after{opacity:1;transform:translateX(0)}
+  .tag{
+    display:inline-block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    font-weight:600;color:var(--accent-2);margin-bottom:12px;
+  }
+  .card h3{font-family:"Fraunces",serif;font-weight:500;font-size:21px;margin-bottom:6px;letter-spacing:-.01em}
+  .card p{font-size:14px;color:var(--ink-soft)}
+  .path{
+    display:block;margin-top:12px;font-family:ui-monospace,"SF Mono",Menlo,monospace;
+    font-size:12px;color:var(--line-strong);
+  }
+  footer{margin-top:56px;padding-top:24px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-soft)}
+  footer code{font-family:ui-monospace,Menlo,monospace;background:var(--paper-2);padding:2px 6px;border-radius:5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Vexo · Smart Ring</div>
+    <h1>Resources &amp; <em>design files</em></h1>
+    <p class="lede">A single home for the prototypes, manuals, and interactive demos built so far. Every page below is a live, self-contained website.</p>
+  </header>
+
+  <h2>Interactive demos</h2>
+  <div class="grid">
+    <a class="card" href="ring/index.html">
+      <span class="tag">3D Configurator</span>
+      <h3>RingForge</h3>
+      <p>Design your ring — interactive 3D configurator with a sensor power model.</p>
+      <span class="path">ring/index.html</span>
+    </a>
+    <a class="card" href="loop/architecture.html">
+      <span class="tag">Architecture</span>
+      <h3>The Ring</h3>
+      <p>Architecture walkthrough with a 3D ring model and design whiteboard.</p>
+      <span class="path">loop/architecture.html</span>
+    </a>
+    <a class="card" href="loop/loop-app.html">
+      <span class="tag">Concept</span>
+      <h3>Loop App</h3>
+      <p>Loop app design concept and interaction mockups.</p>
+      <span class="path">loop/loop-app.html</span>
+    </a>
+  </div>
+
+  <h2>Documentation</h2>
+  <div class="grid">
+    <a class="card" href="developer-manual.html">
+      <span class="tag">Manual</span>
+      <h3>Developer Field Manual</h3>
+      <p>The Loop developer field manual — platform, types, and build notes.</p>
+      <span class="path">developer-manual.html</span>
+    </a>
+  </div>
+
+  <footer>
+    Served via GitHub Pages from <code>VexoRing/VexoResources</code>. Markdown notes
+    (<code>CLAUDE&nbsp;copy.md</code>, <code>flagship-apps&nbsp;copy.md</code>, <code>users&nbsp;copy.md</code>,
+    <code>ring/context.md</code>, <code>ring/research.md</code>) live in the repository.
+  </footer>
+</div>
+</body>
+</html>
