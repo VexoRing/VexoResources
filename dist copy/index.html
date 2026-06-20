@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Loop · Developer Field Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600;700&family=Spline+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#f2ece0;
+    --paper-2:#ebe3d3;
+    --panel:#f7f2e9;
+    --ink:#1c1813;
+    --ink-soft:#5d564a;
+    --line:#cdc3ad;
+    --line-strong:#a99f86;
+    --self:#cf4322;      /* Type 3 accent (open) */
+    --market:#1f7355;    /* Type 4 accent (closed loop) */
+    --warn:#b23a1e;
+    --accent:var(--self);
+    --shadow:18px 18px 0 rgba(28,24,19,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Spline Sans",sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    position:relative;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  ::selection{background:var(--accent);color:var(--paper)}
+
+  .mono{font-family:"JetBrains Mono",monospace}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 28px}
+
+  /* masthead */
+  header.mast{border-bottom:2px solid var(--ink);padding:40px 0 22px;position:relative}
+  .mast-top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap}
+  .brand{font-family:"JetBrains Mono",monospace;font-size:13px;letter-spacing:.32em;text-transform:uppercase;font-weight:600}
+  .doc-meta{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;color:var(--ink-soft);text-align:right;line-height:1.9}
+  h1.title{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(40px,8vw,92px);line-height:.96;letter-spacing:-.02em;margin:26px 0 10px;font-optical-sizing:auto}
+  h1.title em{font-style:italic;color:var(--accent);transition:color .5s}
+  .lede{max-width:680px;font-size:17px;color:var(--ink-soft)}
+  .rule-row{display:flex;gap:6px;margin-top:24px}
+  .rule-row span{height:6px;flex:1;background:var(--ink);opacity:.12}
+  .rule-row span:nth-child(odd){opacity:.22}
+
+  section{padding:64px 0;border-bottom:1px solid var(--line)}
+  .eyebrow{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:14px;transition:color .5s}
+  h2{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(26px,4vw,40px);letter-spacing:-.01em;line-height:1.05;margin-bottom:14px}
+  h2 em{font-style:italic;color:var(--accent);transition:color .5s}
+  .sec-intro{max-width:680px;color:var(--ink-soft);font-size:16px;margin-bottom:38px}
+  .sec-intro em{font-style:italic;color:var(--ink)}
+
+  /* who's who */
+  .whos{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .who{border:1.5px solid var(--line-strong);padding:18px 16px 20px;background:var(--panel);position:relative;border-radius:2px}
+  .who .n{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ink-soft);letter-spacing:.1em}
+  .who h3{font-family:"Fraunces",serif;font-weight:600;font-size:21px;margin:8px 0 6px;line-height:1.05}
+  .who p{font-size:13.5px;color:var(--ink-soft)}
+  .who.dev{border-color:var(--ink);box-shadow:var(--shadow)}
+  .who.dev::after{content:"DEVELOPER";position:absolute;top:-9px;right:12px;background:var(--ink);color:var(--paper);font-family:"JetBrains Mono",monospace;font-size:9px;letter-spacing:.18em;padding:3px 7px;border-radius:1px}
+  .who .tag{display:inline-block;margin-top:12px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.1em;padding:3px 8px;border:1px solid var(--line-strong);border-radius:30px;color:var(--ink-soft)}
+
+  /* two models */
+  .models{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:6px}
+  .model{border:1.5px solid var(--line-strong);border-radius:3px;padding:26px 24px;background:var(--panel);position:relative}
+  .model.open{border-color:var(--self);box-shadow:14px 14px 0 rgba(207,67,34,.08)}
+  .model.closed{border-color:var(--market);box-shadow:14px 14px 0 rgba(31,115,85,.08)}
+  .model .mtag{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;font-weight:600;margin-bottom:14px}
+  .model.open .mtag{color:var(--self)}
+  .model.closed .mtag{color:var(--market)}
+  .model h3{font-family:"Fraunces",serif;font-weight:600;font-size:25px;margin-bottom:10px;line-height:1.05}
+  .model p{font-size:14.5px;color:var(--ink-soft)}
+  .model .mline{margin-top:18px;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.08em;color:var(--ink-soft);border-top:1px dashed var(--line-strong);padding-top:13px}
+
+  /* two doors (local dev) */
+  .doors{display:grid;grid-template-columns:1.35fr 1fr;gap:18px;margin-top:6px;align-items:start}
+  .door{border:1.5px solid var(--line-strong);border-radius:3px;padding:24px 22px;background:var(--panel);position:relative}
+  .door.api{border-color:var(--self)}
+  .door .dtag{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;font-weight:600;color:var(--ink-soft)}
+  .door .dbadge{position:absolute;top:18px;right:18px;font-family:"JetBrains Mono",monospace;font-size:9px;letter-spacing:.16em;padding:3px 8px;border-radius:30px;background:var(--self);color:var(--paper)}
+  .door .dbadge.alt{background:var(--ink)}
+  .door h3{font-family:"Fraunces",serif;font-weight:600;font-size:24px;margin:10px 0 8px;line-height:1.05}
+  .door > p{font-size:14px;color:var(--ink-soft)}
+  .rhythm{border:1px solid var(--line);border-radius:3px;padding:14px 16px;margin-top:14px;background:var(--paper)}
+  .rhythm .r-head{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:9px;margin-bottom:6px}
+  .rhythm p{font-size:13px;color:var(--ink-soft);margin-bottom:10px}
+  .rk{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.12em;padding:3px 8px;border-radius:30px;background:var(--ink);color:var(--paper)}
+  .rk.push{background:var(--self)}
+  .mini{width:100%;height:auto;display:block}
+  .mini text{font-family:"JetBrains Mono",monospace}
+  .door .dnote{margin-top:16px;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.04em;color:var(--ink-soft);border-top:1px dashed var(--line-strong);padding-top:13px}
+
+  /* diagram */
+  .diagram-shell{background:var(--panel);border:1.5px solid var(--ink);border-radius:3px;box-shadow:var(--shadow);padding:30px 26px 24px;position:relative;overflow:hidden;margin-top:8px}
+  .diagram-shell .corner{position:absolute;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.16em;color:var(--ink-soft)}
+  .diagram-shell .corner.tl{top:12px;left:14px}
+  .diagram-shell .corner.tr{top:12px;right:14px}
+  svg.flow{width:100%;height:auto;display:block;margin-top:14px}
+  .flow text{font-family:"JetBrains Mono",monospace}
+  .legend{display:flex;flex-wrap:wrap;gap:18px 26px;margin-top:18px;padding-top:18px;border-top:1px dashed var(--line-strong)}
+  .legend div{display:flex;align-items:center;gap:8px;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.04em;color:var(--ink-soft)}
+  .swatch{width:22px;height:0;border-top-width:3px;border-top-style:solid}
+  .dot{width:11px;height:11px;border-radius:50%}
+  .packet{animation:dash 2.6s linear infinite}
+  @keyframes dash{to{stroke-dashoffset:-200}}
+
+  /* persona toggle */
+  .toggle-row{display:flex;border:1.5px solid var(--ink);border-radius:3px;overflow:hidden;max-width:600px;margin-bottom:8px}
+  .toggle-row button{flex:1;background:transparent;border:none;cursor:pointer;padding:16px 16px;text-align:left;font-family:"Spline Sans",sans-serif;transition:background .25s,color .25s;color:var(--ink)}
+  .toggle-row button + button{border-left:1.5px solid var(--ink)}
+  .toggle-row button .tnum{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;opacity:.6}
+  .toggle-row button .tname{font-family:"Fraunces",serif;font-weight:600;font-size:20px;display:block;margin-top:2px;line-height:1}
+  .toggle-row button .tsub{font-size:12px;color:var(--ink-soft);display:block;margin-top:5px}
+  .toggle-row button[aria-selected="true"]{background:var(--accent);color:var(--paper)}
+  .toggle-row button[aria-selected="true"] .tsub,.toggle-row button[aria-selected="true"] .tnum{color:rgba(255,255,255,.85)}
+
+  .persona-banner{font-size:15px;color:var(--ink-soft);margin:18px 0 28px;max-width:700px}
+  .persona-banner strong{color:var(--ink)}
+
+  /* steps */
+  .steps{display:grid;grid-template-columns:1fr;gap:0;border-top:1px solid var(--line);margin-top:30px}
+  .step{display:grid;grid-template-columns:90px 1fr;gap:24px;padding:26px 4px;border-bottom:1px solid var(--line);position:relative;opacity:0;transform:translateY(14px);animation:rise .55s cubic-bezier(.2,.7,.2,1) forwards}
+  @keyframes rise{to{opacity:1;transform:none}}
+  .step .num{font-family:"Fraunces",serif;font-weight:600;font-size:46px;line-height:1;color:var(--accent);transition:color .5s}
+  .step .num small{display:block;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.16em;color:var(--ink-soft);margin-top:8px;font-weight:500}
+  .step h4{font-family:"Fraunces",serif;font-weight:600;font-size:23px;margin-bottom:8px;line-height:1.1}
+  .step p{font-size:15px;color:var(--ink-soft);max-width:660px}
+  .step .cmd{display:inline-block;margin-top:12px;font-family:"JetBrains Mono",monospace;font-size:12.5px;background:var(--ink);color:var(--paper);padding:8px 12px;border-radius:3px;letter-spacing:.02em}
+  .step .cmd .pr{color:var(--accent);transition:color .5s}
+  .step ul{margin:12px 0 0 0;list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+  .step ul li{font-family:"JetBrains Mono",monospace;font-size:11px;border:1px solid var(--line-strong);padding:5px 10px;border-radius:30px;color:var(--ink-soft)}
+  .step .grant{border-color:var(--accent);color:var(--accent)}
+
+  .bridge{margin-top:30px;padding:22px 24px;border:1.5px dashed var(--ink);border-radius:3px;background:var(--panel);font-size:15px}
+  .bridge b{font-family:"Fraunces",serif;font-weight:600}
+  .bridge em{font-style:italic;color:var(--accent);transition:color .5s}
+
+  /* comparison */
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14.5px}
+  th,td{text-align:left;padding:15px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);border-bottom:2px solid var(--ink)}
+  thead th.local{color:var(--self)}
+  thead th.dist{color:var(--market)}
+  tbody td:first-child{font-weight:600;width:190px}
+  tbody tr:hover{background:var(--panel)}
+  td .free{font-family:"JetBrains Mono",monospace;font-size:11px;background:var(--self);color:var(--paper);padding:2px 7px;border-radius:20px;letter-spacing:.05em}
+
+  /* rule card */
+  .rule-card{background:var(--ink);color:var(--paper);border-radius:3px;padding:38px 34px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .rule-card .big{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(24px,4vw,38px);line-height:1.12;max-width:780px}
+  .rule-card .big em{font-style:italic;color:#f0a58c}
+  .rule-card p{color:rgba(255,255,255,.7);margin-top:18px;max-width:640px;font-size:15px}
+  .rule-card .ring{position:absolute;right:-60px;top:-60px;width:240px;height:240px;border:30px solid rgba(255,255,255,.06);border-radius:50%}
+  .rule-card .ring.two{right:-30px;top:-30px;width:180px;height:180px;border-width:14px}
+
+  footer{padding:46px 0 70px;color:var(--ink-soft);font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.1em}
+  footer .rule-row{margin-bottom:22px}
+
+  @media(max-width:820px){
+    .whos{grid-template-columns:1fr 1fr}
+    .step{grid-template-columns:60px 1fr;gap:16px}
+    .step .num{font-size:34px}
+    tbody td:first-child{width:auto}
+  }
+  @media(max-width:720px){.models{grid-template-columns:1fr}.doors{grid-template-columns:1fr}}
+  @media(max-width:520px){
+    .whos{grid-template-columns:1fr}
+    .toggle-row{flex-direction:column}
+    .toggle-row button + button{border-left:none;border-top:1.5px solid var(--ink)}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= MASTHEAD ================= -->
+<header class="mast">
+  <div class="wrap">
+    <div class="mast-top">
+      <div class="brand">◍ Loop &nbsp;/&nbsp; The Ring</div>
+      <div class="doc-meta">
+        DEVELOPER FIELD MANUAL<br/>
+        REV 3 · 2026-06-18<br/>
+        DATA NEVER LEAVES WITHOUT CONSENT
+      </div>
+    </div>
+    <h1 class="title">Building on<br/>the <em>context layer</em>.</h1>
+    <p class="lede">How a developer reaches their data. There are two paths, split by one question: is it your data, or someone else's? Your own ring is wide open, reachable by a realtime API or by MCP. Everyone else's runs through a closed loop.</p>
+    <div class="rule-row"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+  </div>
+</header>
+
+<!-- ================= WHO'S WHO ================= -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">00 · The cast</div>
+    <h2>Four users, two of them build.</h2>
+    <p class="sec-intro">Everyone is really one of two personas in a private or exposed mode. This manual is for the two on the right: the people who write code.</p>
+    <div class="whos">
+      <div class="who">
+        <div class="n">TYPE 1</div>
+        <h3>Wearer · local</h3>
+        <p>Stays in the app. On-device only, nothing exported. The default state for every user.</p>
+        <span class="tag">own data · no export</span>
+      </div>
+      <div class="who">
+        <div class="n">TYPE 2</div>
+        <h3>Wearer · connected</h3>
+        <p>Same person, after granting an MCP scope to their own agent (Claude, ChatGPT, Gemini).</p>
+        <span class="tag">own data · granted</span>
+      </div>
+      <div class="who dev">
+        <div class="n">TYPE 3</div>
+        <h3>Builder · self</h3>
+        <p>Builds on their own ring: a tracker, a dashboard, an agent. Reaches data by realtime API or MCP. No sandbox.</p>
+        <span class="tag">own data · open access</span>
+      </div>
+      <div class="who dev">
+        <div class="n">TYPE 4</div>
+        <h3>Builder · market</h3>
+        <p>Ships apps other users install. The only persona that touches other people's data, and the only one in the loop.</p>
+        <span class="tag">others' data · sandboxed</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TWO MODELS ================= -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">01 · The deciding question</div>
+    <h2>Whose data is it?</h2>
+    <p class="sec-intro">That one question decides everything. The closed-loop sandbox is not a universal law. It is the price of touching <em>someone else's</em> data. On your own ring there is no sandbox and no required toolchain. You get scoped access and build whatever you want, on whatever platform you want.</p>
+    <div class="models">
+      <div class="model open">
+        <div class="mtag">OWN DATA → OPEN</div>
+        <h3>It's yours. Do anything.</h3>
+        <p>Authenticate, grant yourself the scopes, and reach your ring through a realtime API and SDK, or through MCP for agents. Build a native iOS or Android app, a CLI, a dashboard, or your own assistant. Once the data is in your code it is yours to keep, store, or send wherever. There is no one to protect you from.</p>
+        <div class="mline">no sandbox · no bundle · no review</div>
+      </div>
+      <div class="model closed">
+        <div class="mtag">OTHERS' DATA → CLOSED LOOP</div>
+        <h3>Not yours. Stay in the loop.</h3>
+        <p>To run on other people's rings you ship a signed bundle into a sandbox on each user's phone. No open network: input arrives only through granted read tools, output leaves only through granted action tools. You never receive their raw data. This path exists only because the data is not yours.</p>
+        <div class="mline">sandbox · manifest · review</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THE WALKTHROUGH ================= -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow" id="walk-eyebrow">02 · The walkthrough</div>
+    <h2>Pick a path. Follow the steps.</h2>
+    <p class="sec-intro">The toggle changes the diagram, the steps, and who does the granting. The diagram itself changes on purpose: an <em>open</em> shape for your own data, a <em>closed loop</em> for everyone else's.</p>
+
+    <div class="toggle-row" role="tablist">
+      <button id="tab-self" role="tab" aria-selected="true" onclick="setMode('self')">
+        <span class="tnum">TYPE 3</span>
+        <span class="tname">Personal · own ring</span>
+        <span class="tsub">API or MCP, build anything</span>
+      </button>
+      <button id="tab-market" role="tab" aria-selected="false" onclick="setMode('market')">
+        <span class="tnum">TYPE 4</span>
+        <span class="tname">Marketplace · others</span>
+        <span class="tsub">ship to users, on their data</span>
+      </button>
+    </div>
+
+    <p class="persona-banner" id="persona-banner"></p>
+
+    <!-- OPEN diagram (personal) -->
+    <div class="diagram-shell" id="diagram-open">
+      <span class="corner tl mono">FIG.1 — OWN DATA · READ + BUZZ</span>
+      <span class="corner tr mono">MODE: PERSONAL / OWN DATA</span>
+      <svg class="flow" viewBox="0 0 1000 312" role="img" aria-label="Open personal access: API, MCP, and buzz">
+        <defs>
+          <marker id="aO" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#1c1813"/></marker>
+          <marker id="aOA" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="var(--accent)" class="acc-fill"/></marker>
+        </defs>
+
+        <circle cx="60" cy="150" r="28" fill="none" stroke="#1c1813" stroke-width="8"/>
+        <text x="60" y="200" text-anchor="middle" font-size="12" fill="#1c1813" font-weight="600">RING</text>
+        <text x="60" y="216" text-anchor="middle" font-size="9" fill="#5d564a">your finger</text>
+
+        <line x1="90" y1="150" x2="156" y2="150" stroke="#a99f86" stroke-width="2" stroke-dasharray="6 6" class="packet" marker-end="url(#aO)"/>
+        <text x="123" y="141" text-anchor="middle" font-size="8" fill="#5d564a">BLE</text>
+
+        <rect x="160" y="86" width="126" height="128" rx="6" fill="#f2ece0" stroke="#1c1813" stroke-width="2"/>
+        <text x="223" y="76" text-anchor="middle" font-size="8" fill="#5d564a">scoped token · you grant yourself</text>
+        <text x="223" y="108" text-anchor="middle" font-size="11" fill="#1c1813" font-weight="600">PHONE</text>
+        <text x="223" y="123" text-anchor="middle" font-size="8.5" fill="#5d564a">on-device store</text>
+        <rect x="176" y="132" width="94" height="16" rx="3" fill="#ebe3d3" stroke="#cdc3ad"/><text x="223" y="144" text-anchor="middle" font-size="8.5" fill="#5d564a">transcripts</text>
+        <rect x="176" y="152" width="94" height="16" rx="3" fill="#ebe3d3" stroke="#cdc3ad"/><text x="223" y="164" text-anchor="middle" font-size="8" fill="#5d564a">HR · HRV · SpO2 · temp</text>
+        <rect x="176" y="172" width="94" height="16" rx="3" fill="#ebe3d3" stroke="#cdc3ad"/><text x="223" y="184" text-anchor="middle" font-size="8.5" fill="#5d564a">motion · double-tap</text>
+
+        <line x1="286" y1="132" x2="354" y2="108" stroke="#1c1813" stroke-width="2" marker-end="url(#aO)"/>
+        <line x1="286" y1="170" x2="354" y2="232" stroke="#1c1813" stroke-width="2" marker-end="url(#aO)"/>
+
+        <!-- API gateway -->
+        <rect x="356" y="82" width="104" height="56" rx="5" fill="#cf4322" class="acc-fill"/>
+        <text x="408" y="106" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">API + SDK</text>
+        <text x="408" y="122" text-anchor="middle" font-size="8" fill="rgba(255,255,255,.88)">build apps</text>
+
+        <!-- MCP gateway -->
+        <rect x="356" y="206" width="104" height="56" rx="5" fill="#1c1813"/>
+        <text x="408" y="230" text-anchor="middle" font-size="11" fill="#f2ece0" font-weight="600">MCP</text>
+        <text x="408" y="246" text-anchor="middle" font-size="8" fill="#cdc3ad">ask an agent</text>
+
+        <!-- your app -->
+        <rect x="600" y="58" width="362" height="116" rx="7" fill="#f7f2e9" stroke="var(--accent)" stroke-width="2.5" class="acc-stroke"/>
+        <text x="781" y="48" text-anchor="middle" font-size="10" fill="var(--accent)" font-weight="600" class="acc-text">YOUR APP · dashboard · your own build</text>
+
+        <line x1="460" y1="98" x2="596" y2="98" stroke="#1c1813" stroke-width="2" marker-end="url(#aO)"/>
+        <text x="528" y="90" text-anchor="middle" font-size="8.5" fill="#1c1813" font-weight="600">PULL · query →</text>
+        <text x="528" y="112" text-anchor="middle" font-size="7.5" fill="#5d564a">request / response</text>
+
+        <line x1="460" y1="142" x2="596" y2="142" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="7 7" class="packet acc-stroke" marker-end="url(#aOA)"/>
+        <text x="528" y="160" text-anchor="middle" font-size="8.5" fill="var(--accent)" font-weight="600" class="acc-text">PUSH · stream →</text>
+        <text x="528" y="172" text-anchor="middle" font-size="7.5" fill="#5d564a">realtime events</text>
+
+        <text x="781" y="108" text-anchor="middle" font-size="9" fill="#5d564a">raw typed records + live events</text>
+        <text x="781" y="128" text-anchor="middle" font-size="9" fill="#5d564a">store · chart · automate · anything</text>
+        <text x="781" y="152" text-anchor="middle" font-size="8" fill="var(--accent)" class="acc-text">your data · your rules · no sandbox</text>
+
+        <!-- your agent -->
+        <rect x="600" y="206" width="362" height="64" rx="7" fill="#f7f2e9" stroke="#1c1813" stroke-width="2"/>
+        <text x="781" y="234" text-anchor="middle" font-size="11" fill="#1c1813" font-weight="600">YOUR AGENT</text>
+        <text x="781" y="252" text-anchor="middle" font-size="8.5" fill="#5d564a">Claude · ChatGPT · your own agent (the Type 2 door)</text>
+        <line x1="460" y1="234" x2="596" y2="234" stroke="#1c1813" stroke-width="2" marker-end="url(#aO)"/>
+        <text x="528" y="226" text-anchor="middle" font-size="8.5" fill="#1c1813" font-weight="600">MCP · reason</text>
+
+        <!-- buzz write: your app actuates the ring -->
+        <path d="M610 174 L610 294 L40 294 L40 144" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="7 7" class="packet acc-stroke" marker-end="url(#aOA)"/>
+        <text x="328" y="287" text-anchor="middle" font-size="9" fill="var(--accent)" font-weight="600" class="acc-text">← BUZZ · haptic write (one api call)</text>
+      </svg>
+      <div class="legend">
+        <div><span class="swatch" style="border-color:#1c1813"></span> PULL · query (request / response)</div>
+        <div><span class="swatch acc-stroke" style="border-color:var(--accent)"></span> PUSH · stream (realtime events)</div>
+        <div><span class="swatch acc-stroke" style="border-color:var(--accent)"></span> BUZZ · write back to the ring</div>
+        <div><span class="dot" style="background:#1c1813"></span> MCP · agent reasons over context</div>
+      </div>
+    </div>
+
+    <!-- CLOSED diagram (marketplace) -->
+    <div class="diagram-shell" id="diagram-closed" style="display:none">
+      <span class="corner tl mono">FIG.2 — CLOSED-LOOP SANDBOX</span>
+      <span class="corner tr mono">MODE: MARKETPLACE / OTHERS' DATA</span>
+      <svg class="flow" viewBox="0 0 1000 420" role="img" aria-label="Closed loop sandbox diagram">
+        <defs>
+          <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#1c1813"/></marker>
+          <marker id="arrowA" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="var(--accent)" class="acc-fill"/></marker>
+        </defs>
+
+        <circle cx="78" cy="150" r="34" fill="none" stroke="#1c1813" stroke-width="9"/>
+        <text x="78" y="210" text-anchor="middle" font-size="13" fill="#1c1813" font-weight="600">RING</text>
+        <text x="78" y="228" text-anchor="middle" font-size="10" fill="#5d564a">the user's</text>
+
+        <line x1="116" y1="150" x2="196" y2="150" stroke="#a99f86" stroke-width="2" stroke-dasharray="6 6" class="packet" marker-end="url(#arrow)"/>
+        <text x="156" y="140" text-anchor="middle" font-size="9" fill="#5d564a">BLE</text>
+
+        <rect x="200" y="70" width="150" height="160" rx="6" fill="#f2ece0" stroke="#1c1813" stroke-width="2"/>
+        <text x="275" y="96" text-anchor="middle" font-size="12" fill="#1c1813" font-weight="600">USER'S PHONE</text>
+        <text x="275" y="113" text-anchor="middle" font-size="9" fill="#5d564a">on-device store</text>
+        <rect x="220" y="128" width="110" height="20" rx="3" fill="#ebe3d3" stroke="#cdc3ad"/><text x="275" y="142" text-anchor="middle" font-size="9" fill="#5d564a">transcripts</text>
+        <rect x="220" y="154" width="110" height="20" rx="3" fill="#ebe3d3" stroke="#cdc3ad"/><text x="275" y="168" text-anchor="middle" font-size="9" fill="#5d564a">HR · HRV · temp</text>
+        <rect x="220" y="180" width="110" height="20" rx="3" fill="#ebe3d3" stroke="#cdc3ad"/><text x="275" y="194" text-anchor="middle" font-size="9" fill="#5d564a">motion · double-tap</text>
+
+        <rect x="400" y="80" width="86" height="140" rx="5" fill="#1c1813"/>
+        <text x="443" y="135" text-anchor="middle" font-size="11" fill="#f2ece0" font-weight="600">MCP</text>
+        <text x="443" y="151" text-anchor="middle" font-size="11" fill="#f2ece0" font-weight="600">BROKER</text>
+        <text x="443" y="172" text-anchor="middle" font-size="8.5" fill="var(--accent)" class="acc-text">the gate</text>
+        <line x1="350" y1="150" x2="396" y2="150" stroke="#1c1813" stroke-width="2" marker-end="url(#arrow)"/>
+
+        <rect x="560" y="50" width="300" height="300" rx="6" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="3 5" class="acc-stroke"/>
+        <text x="710" y="40" text-anchor="middle" font-size="11" fill="var(--accent)" font-weight="600" class="acc-text">SANDBOX · NO AMBIENT NETWORK</text>
+        <rect x="600" y="150" width="220" height="100" rx="5" fill="#f7f2e9" stroke="#1c1813" stroke-width="2"/>
+        <text x="710" y="190" text-anchor="middle" font-size="14" fill="#1c1813" font-weight="600">YOUR APP</text>
+        <text x="710" y="210" text-anchor="middle" font-size="10" fill="#5d564a">signed bundle · the manifest</text>
+        <text x="710" y="228" text-anchor="middle" font-size="9" fill="#5d564a">runs where the data is</text>
+
+        <path d="M486 120 C 530 120, 540 175, 598 175" fill="none" stroke="#1c1813" stroke-width="2.5" stroke-dasharray="7 7" class="packet" marker-end="url(#arrow)"/>
+        <text x="540" y="108" text-anchor="middle" font-size="9.5" fill="#1c1813" font-weight="600">read tools →</text>
+        <text x="540" y="121" text-anchor="middle" font-size="8" fill="#5d564a">granted input scopes</text>
+
+        <path d="M598 225 C 540 225, 530 285, 486 200" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="7 7" class="packet acc-stroke" marker-end="url(#arrowA)"/>
+        <text x="545" y="270" text-anchor="middle" font-size="9.5" fill="var(--accent)" font-weight="600" class="acc-text">← action tools</text>
+        <text x="545" y="283" text-anchor="middle" font-size="8" fill="#5d564a">granted output scopes</text>
+        <text x="545" y="295" text-anchor="middle" font-size="7.5" fill="#5d564a">post · ticket · buzz</text>
+
+        <rect x="630" y="280" width="160" height="40" rx="20" fill="#ebe3d3" stroke="#1c1813" stroke-width="1.5"/>
+        <text x="710" y="305" text-anchor="middle" font-size="10" fill="#1c1813">on-device inference tool</text>
+
+        <line x1="443" y1="80" x2="443" y2="40" stroke="var(--accent)" stroke-width="2" class="acc-stroke" marker-end="url(#arrowA)"/>
+        <text x="443" y="30" text-anchor="middle" font-size="9" fill="var(--accent)" class="acc-text">→ X · Linear · GitHub</text>
+        <text x="443" y="18" text-anchor="middle" font-size="8" fill="#5d564a">user's own creds</text>
+
+        <text x="710" y="345" text-anchor="middle" font-size="9" fill="#b23a1e">✕ no raw egress to the developer's servers</text>
+      </svg>
+      <div class="legend">
+        <div><span class="swatch" style="border-color:#1c1813"></span> granted read (input scope)</div>
+        <div><span class="swatch acc-stroke" style="border-color:var(--accent)"></span> granted action (output scope)</div>
+        <div><span class="dot" style="background:#b23a1e"></span> blocked: raw network</div>
+        <div><span class="dot" style="background:#1c1813"></span> broker = the gate + audit log</div>
+      </div>
+    </div>
+
+    <div class="steps" id="steps"></div>
+    <div class="bridge" id="bridge"></div>
+  </div>
+</section>
+
+<!-- ================= COMPARISON ================= -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">03 · Side by side</div>
+    <h2>What actually changes.</h2>
+    <p class="sec-intro">It comes down to whose data it is, and therefore how much structure you have to accept. Your own data asks almost nothing of you.</p>
+    <table>
+      <thead>
+        <tr><th>Concern</th><th class="local">Personal · Type 3</th><th class="dist">Marketplace · Type 4</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Whose data</td><td>Your own ring</td><td>Each user's ring</td></tr>
+        <tr><td>Who grants</td><td>You, to yourself</td><td>Each user, at install</td></tr>
+        <tr><td>How you connect</td><td>Realtime API + SDK, or MCP for agents</td><td>Signed bundle in our sandbox</td></tr>
+        <tr><td>Read rhythm</td><td>Pull (query) + push (stream)</td><td>Brokered read tools, granted</td></tr>
+        <tr><td>Buzz the ring</td><td>Open API call</td><td>Granted action (output scope)</td></tr>
+        <tr><td>Where code runs</td><td>Anywhere: iOS, Android, CLI, server</td><td>Sandbox on the user's phone</td></tr>
+        <tr><td>Network</td><td><span class="free">OPEN</span> do anything with your data</td><td>None ambient · brokered I/O only</td></tr>
+        <tr><td>What you build with</td><td>API/SDK + token, or MCP</td><td>The SDK + a manifest</td></tr>
+        <tr><td>Sandbox / review</td><td><span class="free">NONE</span></td><td>Sandbox + signing + review</td></tr>
+        <tr><td>Why the rules differ</td><td>It's your data, you consented</td><td>It's not your data</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ================= THE RULE ================= -->
+<section style="border-bottom:none">
+  <div class="wrap">
+    <div class="rule-card">
+      <div class="ring"></div><div class="ring two"></div>
+      <div class="big">Your own ring is <em>wide open</em>. Pull it, stream it, or hand it to an agent. The loop only closes the moment you reach for <em>someone else's</em> data.</div>
+      <p>One rule generates everything: data never leaves without consent. When the data is yours, you are the consent, so you get a fast, raw, realtime API with nothing fenced off. When it belongs to a stranger, the sandbox is how their consent stays enforceable instead of a promise.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="rule-row"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    ◍ LOOP · DEVELOPER FIELD MANUAL · DATA NEVER LEAVES WITHOUT CONSENT · END OF DOCUMENT
+  </div>
+</footer>
+
+<script>
+  const css = getComputedStyle(document.documentElement);
+  const COL = { self: css.getPropertyValue('--self').trim(), market: css.getPropertyValue('--market').trim() };
+
+  const DATA = {
+    self:{
+      accent:COL.self,
+      banner:"You want to build on your own ring: read your transcripts and health data, react to them live, even buzz the ring back. You get a scoped token and <strong>two doors in</strong>. A realtime API + SDK for apps, and MCP for pointing an agent. No sandbox, it's your data.",
+      steps:[
+        {n:"01",t:"AUTHENTICATE",h:"Grant yourself a scoped token.",p:"In the Loop app, approve a token for your own access and pick exactly the raw signals you want: voice transcripts, health (HR, HRV, SpO2, temp), motion and double-tap. You are the grantor and the owner.",chips:[["you are the grantor","grant"],["read.transcripts","grant"],["read.health","grant"],["read.motion","grant"]]},
+        {n:"02",t:"PICK YOUR DOOR",h:"API for apps, MCP for agents.",p:"Two ways in, chosen by what you are building. The API + SDK gives you the raw signals to build on. MCP points a reasoning agent at the same context. Building a dashboard or a tracker? You want the API, and you bring your own logic on top of the raw data.",chips:[["API + SDK",""],["MCP",""]]},
+        {n:"03",t:"PULL",h:"Query the raw signals you need.",p:"Request and response. You ask, it answers. Hit the API for history and aggregates: your last hour of transcripts, your resting HR trend. The platform serves raw signals; concepts like a workout are yours to derive.",cmd:'<span class="pr">GET</span> /v1/health/hr?since=24h   → samples'},
+        {n:"04",t:"PUSH",h:"Stream what happens, live.",p:"Subscribe and react the instant capture occurs. The moment you speak, a transcript event arrives, no polling. This realtime rhythm is exactly what MCP cannot give you, and it is why an app wants the API.",cmd:'<span class="pr">WS</span> subscribe("transcripts")   → live text'},
+        {n:"05",t:"BUZZ",h:"Write back: actuate the ring.",p:"The API is not read-only. Fire the ring's haptic from your own code: a timer, a nudge, a signal from your automation. One call on the same token. It is the one output the hardware has.",cmd:'<span class="pr">POST</span> /v1/buzz   { pattern: "double" }'},
+        {n:"06",t:"OR ASK AN AGENT",h:"Use MCP if your app reasons.",p:"If what you are building thinks rather than renders, skip the raw API and point an agent at your ring over MCP. It is the same door a user opens for Claude or ChatGPT in Type 2, so you may already have it.",cmd:'<span class="pr">MCP</span> ctx.read("hr")   // model in the loop'},
+        {n:"07",t:"KEEP OR GRADUATE",h:"Private forever, or ship it later.",p:"It's your data, so do anything: store it, chart it, push it to your own cloud. Keep the build to yourself with zero overhead, or, only if you decide to put it in front of other people, move to the marketplace where the sandbox appears.",chips:[["no review needed","grant"]]}
+      ],
+      bridge:'<b>Why two doors?</b> Because reading is not reasoning. An app wants <em>raw signals on its own clock</em> (pull for history, push for live) and can buzz back. An agent wants semantic tools. MCP is great at the second and wrong for the first, so you get both and pick per build.'
+    },
+    market:{
+      accent:COL.market,
+      banner:"Now <strong>strangers run your code on their data.</strong> This is the only path with the sandbox. You ship a signed bundle into a per-user sandbox on each phone, each user grants the scopes, and you still never receive a byte of their raw context.",
+      steps:[
+        {n:"01",t:"BUILD THE BUNDLE",h:"Express your logic against the SDK + manifest.",p:"To run on other people's rings, the logic moves into a sandboxed bundle. If you prototyped a personal hack first, you port that logic here. The manifest declares the input scopes you read and the output scopes you write (including buzz), each with a reason.",chips:[["read.transcripts","grant"],["read.health","grant"],["action.post.x","grant"],["action.buzz","grant"]]},
+        {n:"02",t:"SIGN & SUBMIT",h:"Attach identity, submit the manifest.",p:"You sign the bundle so users know who wrote it and that it has not been tampered with. The exact scopes you will request go in for review alongside it.",cmd:'<span class="pr">$</span> loop publish --sign'},
+        {n:"03",t:"REVIEW & LIST",h:"Pass review, appear in the marketplace.",p:"Review checks the bundle and the scopes it asks for against what it actually does. Once cleared, the app is listed for any Loop user to find and install.",chips:[["curated flagship",""],["open self-serve",""]]},
+        {n:"04",t:"USER INSTALLS",h:"Each user sees the consent screen.",p:"At install the manifest becomes a permission prompt: these reads, these sends, here is why. The user grants input and output scopes independently. They can grant read-without-send.",chips:[["input scope","grant"],["output scope","grant"]]},
+        {n:"05",t:"RUNS PER USER",h:"The closed loop, on their phone, on their data.",p:"Your bundle executes inside the sandbox on the user's device, reading only granted scopes and sending only to granted destinations with the user's own credentials. You receive nothing.",cmd:'<span class="pr">›</span> sandbox @ user-device · your code · their data'},
+        {n:"06",t:"GOVERNANCE",h:"Updates, audit, revocation.",p:"A version that wants new scopes triggers fresh consent: you cannot widen access silently. Every user sees a per-app log of what you read and where you sent it. Revoke a grant and the sandbox loses that tool immediately.",chips:[["re-consent on widen","grant"],["per-app audit log",""],["revoke = instant","grant"]]}
+      ],
+      bridge:'<b>Why this stays safe:</b> per-user isolation is <em>physical</em>: separate devices, separate processes, not a multi-tenant database you must keep perfectly partitioned. The broker sees every call, so the audit log and instant revocation come for free.'
+    }
+  };
+
+  function render(mode){
+    const d = DATA[mode];
+    document.documentElement.style.setProperty('--accent', d.accent);
+    document.getElementById('persona-banner').innerHTML = d.banner;
+    document.getElementById('bridge').innerHTML = d.bridge;
+    document.getElementById('diagram-open').style.display   = mode==='self'   ? 'block':'none';
+    document.getElementById('diagram-closed').style.display = mode==='market' ? 'block':'none';
+
+    const stepsEl = document.getElementById('steps');
+    stepsEl.innerHTML = "";
+    d.steps.forEach((s,i)=>{
+      const chips = s.chips ? `<ul>${s.chips.map(c=>`<li class="${c[1]==='grant'?'grant':''}">${c[0]}</li>`).join('')}</ul>` : '';
+      const cmd = s.cmd ? `<div class="cmd">${s.cmd}</div>` : '';
+      const el = document.createElement('div');
+      el.className = 'step';
+      el.style.animationDelay = (i*70)+'ms';
+      el.innerHTML = `<div class="num">${s.n}<small>${s.t}</small></div><div><h4>${s.h}</h4><p>${s.p}</p>${cmd}${chips}</div>`;
+      stepsEl.appendChild(el);
+    });
+
+    document.querySelectorAll('.acc-fill').forEach(e=>e.setAttribute('fill', d.accent));
+    document.querySelectorAll('.acc-stroke').forEach(e=>e.setAttribute('stroke', d.accent));
+    document.querySelectorAll('.acc-text').forEach(e=>e.setAttribute('fill', d.accent));
+  }
+
+  function setMode(mode){
+    document.getElementById('tab-self').setAttribute('aria-selected', mode==='self');
+    document.getElementById('tab-market').setAttribute('aria-selected', mode==='market');
+    render(mode);
+  }
+
+  render('self');
+</script>
+</body>
+</html>
